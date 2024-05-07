@@ -1,0 +1,11 @@
+services:
+  database:
+    image: postgres:16
+    container_name: financial_control
+    environment:
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: 'financial_control'
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: 'exit 0'

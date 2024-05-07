@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id          String @id @default(uuid())
+  name        String
+  email       String @unique
+  password    String
+  phoneNumber String @map("phone_number")
+
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @default(now()) @updatedAt @map("updated_at")
+  bank      bank[]
+  feedback  feedback[]
+
+  @@index([email])
+}
+
+model bank {
+  id       String @id
+  userId   String @map("user_id")
+  code     String
+  name     String
+  metadata Json
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user           user             @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: NoAction)
+  income_expense income_expense[]
+  goal           goal[]
+}
+
+enum IncomeExpense {
+  income
+  expense
+}
+
+model income_expense {
+  id          String        @id
+  bankId      String        @map("bank_id")
+  title       String
+  description String
+  category    String
+  type        IncomeExpense
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  bank bank @relation(fields: [bankId], references: [id], onUpdate: Cascade, onDelete: NoAction)
+}
+
+model goal {
+  id          String   @id
+  bankId      String   @map("bank_id")
+  title       String
+  description String
+  dateLimit   DateTime @map("date_limit")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  bank bank @relation(fields: [bankId], references: [id], onUpdate: Cascade, onDelete: NoAction)
+
+  @@index([bankId])
+}
+
+model feedback {
+  id          String @id
+  userId      String @map("user_id")
+  title       String
+  description String
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user user @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: NoAction)
+}
