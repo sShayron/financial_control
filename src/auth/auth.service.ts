@@ -53,6 +53,8 @@ export class AuthService {
     const accessToken = jwt.sign({ email }, process.env.JWT_SECRET);
 
     return {
+      name: user.name,
+      email,
       accessToken,
     };
   }
